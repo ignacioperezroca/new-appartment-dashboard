@@ -1,0 +1,95 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #111827;
+  background-color: #f4f2ed;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(91, 124, 250, 0.08), transparent 26%),
+    radial-gradient(circle at 84% 12%, rgba(100, 183, 159, 0.08), transparent 24%),
+    linear-gradient(180deg, #f8f7f3 0%, #f4f2ed 48%, #f2efea 100%);
+  color: #111827;
+}
+
+* {
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+::selection {
+  background: rgba(91, 124, 250, 0.18);
+  color: #0f172a;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    @apply text-balance;
+  }
+
+  p {
+    @apply text-pretty;
+  }
+}
+
+@layer components {
+  .surface-card {
+    @apply relative overflow-hidden rounded-[28px] border shadow-panel backdrop-blur-xl;
+    border-color: rgba(255, 255, 255, 0.75);
+    background-color: rgba(255, 255, 255, 0.82);
+  }
+
+  .surface-card::before {
+    content: "";
+    @apply pointer-events-none absolute inset-x-6 top-0 h-px opacity-90;
+    background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.95), transparent);
+  }
+
+  .surface-muted {
+    @apply relative overflow-hidden rounded-[24px] border shadow-sm backdrop-blur-sm;
+    border-color: rgba(226, 232, 240, 0.8);
+    background-color: rgba(251, 250, 247, 0.88);
+  }
+
+  .section-shell {
+    @apply surface-card p-5 sm:p-6 lg:p-7;
+  }
+
+  .eyebrow {
+    @apply font-mono text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500;
+  }
+
+  .soft-divider {
+    @apply h-px w-full;
+    background-image: linear-gradient(to right, transparent, rgba(226, 232, 240, 0.9), transparent);
+  }
+
+  .grid-backdrop {
+    background-image:
+      linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+}
