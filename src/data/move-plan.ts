@@ -32,6 +32,11 @@ export interface TaskGroup {
   items: string[];
 }
 
+export interface ActionDuration {
+  label: string;
+  days: number;
+}
+
 export interface Phase {
   id: string;
   number: number;
@@ -52,7 +57,7 @@ export interface Phase {
   progress: number;
   dependencyIds: string[];
   readiness: string;
-  bufferLabel: string;
+  actionDurations: ActionDuration[];
   startWeek: number;
   endWeek: number;
 }
@@ -178,7 +183,12 @@ export const movePhases: Phase[] = [
     progress: 58,
     dependencyIds: [],
     readiness: "Listo para cerrar si el contrato y el modelo de expensas validan.",
-    bufferLabel: "Buffer operativo: 1–2 días para negociación final",
+    actionDurations: [
+      { label: "Decidir", days: 1 },
+      { label: "Contrato", days: 1 },
+      { label: "Negociar", days: 2 },
+      { label: "OK final", days: 1 },
+    ],
     startWeek: 0,
     endWeek: 1,
   },
@@ -210,7 +220,11 @@ export const movePhases: Phase[] = [
     progress: 16,
     dependencyIds: ["fase-1"],
     readiness: "Puede activarse apenas cierres la decisión y el contrato quede limpio.",
-    bufferLabel: "Buffer recomendado: 2 días extra para pago y llaves",
+    actionDurations: [
+      { label: "Firma", days: 1 },
+      { label: "Pago inicial", days: 1 },
+      { label: "Acceso", days: 2 },
+    ],
     startWeek: 2,
     endWeek: 3,
   },
@@ -242,7 +256,11 @@ export const movePhases: Phase[] = [
     progress: 0,
     dependencyIds: ["fase-2"],
     readiness: "Bloqueada hasta que el contrato nuevo esté firmado y con acceso confirmado.",
-    bufferLabel: "Sin buffer real: cualquier aviso prematuro aumenta riesgo",
+    actionDurations: [
+      { label: "Aviso", days: 1 },
+      { label: "Entrega", days: 1 },
+      { label: "Costo final", days: 1 },
+    ],
     startWeek: 2,
     endWeek: 3,
   },
@@ -276,7 +294,12 @@ export const movePhases: Phase[] = [
     progress: 0,
     dependencyIds: ["fase-2"],
     readiness: "Lista apenas tengas llaves, materiales y agenda de pintor cerrada.",
-    bufferLabel: "Buffer sano: 3 días entre pintura y día de mudanza",
+    actionDurations: [
+      { label: "Relevamiento", days: 1 },
+      { label: "Materiales", days: 1 },
+      { label: "Pintura", days: 4 },
+      { label: "Limpieza", days: 2 },
+    ],
     startWeek: 3,
     endWeek: 5,
   },
@@ -309,7 +332,12 @@ export const movePhases: Phase[] = [
     progress: 0,
     dependencyIds: ["fase-2"],
     readiness: "Puede arrancar en paralelo con pintura para ganar aire.",
-    bufferLabel: "Buffer recomendado: 1 semana de packing gradual",
+    actionDurations: [
+      { label: "Presupuestos", days: 2 },
+      { label: "Packing", days: 4 },
+      { label: "Reserva", days: 1 },
+      { label: "Organización", days: 2 },
+    ],
     startWeek: 3,
     endWeek: 5,
   },
@@ -341,7 +369,12 @@ export const movePhases: Phase[] = [
     progress: 0,
     dependencyIds: ["fase-2"],
     readiness: "Conviene activarla una vez confirmes fecha real de mudanza.",
-    bufferLabel: "Buffer recomendado: 48 hs antes del traslado",
+    actionDurations: [
+      { label: "Internet", days: 2 },
+      { label: "Luz/Gas", days: 2 },
+      { label: "Domicilios", days: 2 },
+      { label: "Apps", days: 1 },
+    ],
     startWeek: 5,
     endWeek: 6,
   },
@@ -380,7 +413,12 @@ export const movePhases: Phase[] = [
     progress: 0,
     dependencyIds: ["fase-4", "fase-5", "fase-6"],
     readiness: "No debería ejecutarse sin depto listo, proveedor reservado y servicios mínimos resueltos.",
-    bufferLabel: "Buffer crítico: 24 hs de colchón antes de la entrega actual",
+    actionDurations: [
+      { label: "Carga", days: 1 },
+      { label: "Traslado", days: 1 },
+      { label: "Descarga", days: 1 },
+      { label: "Setup básico", days: 1 },
+    ],
     startWeek: 6,
     endWeek: 7,
   },
@@ -413,7 +451,12 @@ export const movePhases: Phase[] = [
     progress: 0,
     dependencyIds: ["fase-3", "fase-7"],
     readiness: "Se ordena mejor si la evidencia ya está preparada el mismo día de salida.",
-    bufferLabel: "Seguimiento extendido: depósito puede demorar hasta 30 días",
+    actionDurations: [
+      { label: "Limpieza final", days: 1 },
+      { label: "Entrega", days: 1 },
+      { label: "Evidencia", days: 1 },
+      { label: "Depósito", days: 30 },
+    ],
     startWeek: 7,
     endWeek: 8,
   },
@@ -530,4 +573,3 @@ export const calendarMonths = [
   { label: "Mayo", span: 4 },
   { label: "Junio", span: 3 },
 ];
-

@@ -148,6 +148,8 @@ const durationChart = movePhases.map((phase) => ({
   days: Number(((phase.durationDays[0] + phase.durationDays[1]) / 2).toFixed(1)),
 }));
 
+const maxPhaseDays = Math.max(...movePhases.map((phase) => phase.durationDays[1]));
+
 const visualWindowGroups = [
   {
     month: "Abril",
@@ -1057,11 +1059,35 @@ function CompactTimelineView({ phases }: { phases: Phase[] }) {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[420px] xl:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[560px] xl:grid-cols-4">
                 <MetaBlock label="Calendario" value={phase.calendarLabel} />
                 <MetaBlock label="Duración" value={phase.durationLabel} />
                 <MetaBlock label="Riesgo" value={riskMeta[phase.risk]} />
+                <MetaBlock
+                  label="Acciones"
+                  value={`${phase.actionDurations.length} bloques en días`}
+                />
               </div>
+            </div>
+
+            <div className="mt-4 grid gap-2 lg:grid-cols-4">
+              {phase.actionDurations.map((action) => (
+                <div
+                  key={`${phase.id}-${action.label}`}
+                  className="rounded-[18px] border border-slate-200/80 bg-white/80 px-4 py-3"
+                >
+                  <div className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-700">
+                    <span>{action.label}</span>
+                    <span className="text-slate-500">{action.days}d</span>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-[rgba(91,124,250,0.72)]"
+                      style={{ width: `${(action.days / phase.durationDays[1]) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ))}
@@ -1196,7 +1222,7 @@ function TimelinePhaseCard({
                 <div className="surface-card bg-white/[0.78] p-4">
                   <div className="flex items-center justify-between">
                     <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                    Estado de preparación
+                      Estado de preparación
                     </div>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
                       {phase.progress}% preparado
@@ -1215,13 +1241,42 @@ function TimelinePhaseCard({
                 </div>
 
                 <div className="surface-card bg-white/[0.78] p-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                    Dependencias y buffer
-                  </div>
-                  <div className="mt-3 space-y-3">
-                    <div className="rounded-3xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-sm leading-6 text-slate-600">
-                      {phase.bufferLabel}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                      Duración real en días
                     </div>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
+                      {phase.durationLabel}
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className={cn("h-full rounded-full bg-gradient-to-r", statusMeta[phase.status].bar)}
+                        style={{ width: `${(phase.durationDays[1] / maxPhaseDays) * 100}%` }}
+                      />
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                      <span>{phase.durationDays[0]} d mínimo</span>
+                      <span>{phase.durationDays[1]} d máximo</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    {phase.actionDurations.map((action) => (
+                      <div key={`${phase.id}-${action.label}`} className="space-y-2">
+                        <div className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-700">
+                          <span>{action.label}</span>
+                          <span className="text-slate-500">{action.days} día{action.days > 1 ? "s" : ""}</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className="h-full rounded-full bg-[rgba(91,124,250,0.72)]"
+                            style={{ width: `${(action.days / phase.durationDays[1]) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
                     {phase.milestone ? (
                       <div className="rounded-3xl border border-[rgba(100,183,159,0.18)] bg-[rgba(100,183,159,0.10)] px-4 py-3 text-sm font-semibold text-[rgb(34,102,87)]">
                         Hito: {phase.milestone}
@@ -1428,9 +1483,9 @@ function RoadmapMobileCard({
         })}
       </div>
 
-      {detailed && "bufferLabel" in row ? (
+      {detailed && "actionDurations" in row ? (
         <div className="mt-4 rounded-[20px] border border-slate-200/80 bg-[#faf8f4] px-4 py-3 text-sm text-slate-600">
-          {row.bufferLabel}
+          {row.actionDurations.map((action) => `${action.label} ${action.days}d`).join(" · ")}
         </div>
       ) : null}
     </motion.div>
