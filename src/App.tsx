@@ -157,6 +157,48 @@ const durationChart = movePhases.map((phase) => ({
   days: Number(((phase.durationDays[0] + phase.durationDays[1]) / 2).toFixed(1)),
 }));
 
+const visualWindowGroups = [
+  {
+    month: "Abril",
+    range: "Semanas 3–4",
+    summary: "Decisión + contrato",
+    weeks: ["Abr S3", "Abr S4"],
+    tone: "blue" as const,
+  },
+  {
+    month: "Mayo",
+    range: "Semanas 1–4",
+    summary: "Firma, salida, pintura y packing",
+    weeks: ["May S1", "May S2", "May S3", "May S4"],
+    tone: "mint" as const,
+  },
+  {
+    month: "Junio",
+    range: "Semanas 1–3",
+    summary: "Mudanza + cierre",
+    weeks: ["Jun S1", "Jun S2", "Jun S3"],
+    tone: "graphite" as const,
+  },
+];
+
+const commandCenterSignals = [
+  {
+    label: "Próxima presión",
+    value: "Acceso al depto + aviso de salida",
+    tone: "amber" as const,
+  },
+  {
+    label: "Momento más sensible",
+    value: "Mayo semanas 2–4",
+    tone: "blue" as const,
+  },
+  {
+    label: "Lectura recomendada",
+    value: "Solapar para bajar fricción",
+    tone: "mint" as const,
+  },
+];
+
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("executive");
   const [density, setDensity] = useState<DensityMode>("detailed");
@@ -441,64 +483,91 @@ function HeroOverview({
   statusCounts: { inProgress: number; ready: number; critical: number };
 }) {
   return (
-    <AnimatedSection className="grid gap-4 lg:grid-cols-[1.25fr_0.95fr]">
+    <AnimatedSection className="grid gap-4 xl:grid-cols-[1.35fr_0.95fr]">
       <Card className="section-shell overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-br from-[rgba(91,124,250,0.14)] via-transparent to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-br from-[rgba(91,124,250,0.14)] via-transparent to-transparent" />
+        <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-[rgba(100,183,159,0.10)] blur-3xl" />
         <div className="relative flex flex-col gap-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="grid gap-6 lg:grid-cols-[1.18fr_0.82fr]">
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge variant="subtle">Centro de comando</Badge>
                 <Badge variant="accent">{targetDate}</Badge>
+                <Badge>Plan activo · 8 fases</Badge>
               </div>
-              <h1 className="mt-5 text-4xl font-semibold tracking-[-0.03em] text-slate-950 sm:text-5xl lg:text-6xl">
+              <h1 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-5xl lg:text-6xl">
                 Plan de Mudanza
               </h1>
               <p className="mt-3 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">
-                Timeline visual optimizado para decidir, solapar y ejecutar la mudanza con margen,
-                claridad y control.
+                Timeline visual optimizado para decidir, bloquear entradas, absorber dependencias y
+                ejecutar la mudanza con margen real.
               </p>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {overviewHighlights.map((item) => (
+                  <div key={item.label} className="rounded-[26px] border border-white/70 bg-white/72 p-4 shadow-sm">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                      {item.label}
+                    </div>
+                    <div className="mt-2 text-sm font-semibold leading-6 text-slate-800">
+                      {item.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="surface-muted flex min-w-[220px] flex-col gap-2 p-4">
-              <span className="eyebrow">Resumen ejecutivo</span>
-              <div className="flex items-center gap-3 text-sm text-slate-600">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-[rgba(91,124,250,0.12)] text-[rgb(58,78,167)]">
-                  <LayoutDashboard className="h-4 w-4" />
-                </span>
-                <span>{executiveSummary.activePhase}</span>
+            <div className="surface-muted p-5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="eyebrow">Resumen ejecutivo</span>
+                <Badge>Hoy · {todayLabel}</Badge>
               </div>
-              <div className="flex items-center gap-3 text-sm text-slate-600">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-[rgba(100,183,159,0.12)] text-[rgb(34,102,87)]">
-                  <CalendarClock className="h-4 w-4" />
-                </span>
-                <span>{executiveSummary.nextMilestone}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-slate-600">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-[rgba(208,154,67,0.12)] text-[rgb(130,84,17)]">
-                  <Workflow className="h-4 w-4" />
-                </span>
-                <span>{executiveSummary.overlapWindow}</span>
+
+              <div className="mt-5 space-y-3">
+                <ExecutiveSignal
+                  icon={LayoutDashboard}
+                  tone="blue"
+                  label="Estado actual"
+                  value={executiveSummary.activePhase}
+                />
+                <ExecutiveSignal
+                  icon={CalendarClock}
+                  tone="mint"
+                  label="Próximo hito"
+                  value={executiveSummary.nextMilestone}
+                />
+                <ExecutiveSignal
+                  icon={Workflow}
+                  tone="amber"
+                  label="Solapamiento ideal"
+                  value={executiveSummary.overlapWindow}
+                />
               </div>
             </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1fr_0.78fr]">
+          <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
             <div className="surface-muted p-5">
-              <div className="eyebrow">Recomendación ejecutiva</div>
-              <p className="mt-3 text-lg font-semibold leading-8 text-slate-950">
-                {executiveSummary.recommendation}
-              </p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                {overviewHighlights.map((item) => (
-                  <div key={item.label} className="rounded-3xl border border-white/70 bg-white/70 p-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                      {item.label}
-                    </div>
-                    <div className="mt-2 text-sm font-semibold leading-6 text-slate-700">
-                      {item.value}
-                    </div>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="max-w-2xl">
+                  <div className="eyebrow">Recomendación ejecutiva</div>
+                  <p className="mt-3 text-lg font-semibold leading-8 text-slate-950">
+                    {executiveSummary.recommendation}
+                  </p>
+                </div>
+                <div className="rounded-[24px] border border-[rgba(91,124,250,0.14)] bg-white/72 px-4 py-3 text-right shadow-sm">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                    Ruta sugerida
                   </div>
+                  <div className="mt-2 text-sm font-semibold text-slate-800">
+                    Firma → acceso → aviso → pintura
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                {commandCenterSignals.map((signal) => (
+                  <SignalCard key={signal.label} {...signal} />
                 ))}
               </div>
             </div>
@@ -517,81 +586,91 @@ function HeroOverview({
       </Card>
 
       <Card className="section-shell">
-        <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr] lg:grid-cols-1 xl:grid-cols-[0.85fr_1.15fr]">
-          <div className="flex flex-col items-center justify-center">
-            <div className="eyebrow text-center">Avance total del plan</div>
-            <div className="relative mt-5 h-52 w-full max-w-[220px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={progressChart}
-                    dataKey="value"
-                    innerRadius={72}
-                    outerRadius={92}
-                    startAngle={90}
-                    endAngle={-270}
-                    stroke="none"
-                  >
-                    {progressChart.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-4xl font-semibold tracking-[-0.03em] text-slate-950">
-                  {overallProgress}%
-                </div>
-                <div className="mt-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                  progreso total
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <div className="eyebrow">Resumen compacto</div>
-              <h2 className="mt-3 text-2xl font-semibold text-slate-950">
-                Comando visual del proyecto
-              </h2>
-            </div>
-
-            <div className="surface-muted p-4">
-              <div className="flex items-center justify-between text-sm font-semibold text-slate-600">
-                <span>Ventana objetivo</span>
-                <span className="font-mono text-xs uppercase tracking-[0.24em] text-slate-400">
-                  abril → junio
-                </span>
-              </div>
-              <div className="mt-4 grid grid-cols-9 gap-2">
-                {calendarWeeks.map((week, index) => (
-                  <div
-                    key={week}
-                    className={cn(
-                      "rounded-2xl border px-2 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.12em]",
-                      index <= 1
-                        ? "border-[rgba(91,124,250,0.16)] bg-[rgba(91,124,250,0.08)] text-[rgb(58,78,167)]"
-                        : index <= 5
-                          ? "border-[rgba(100,183,159,0.16)] bg-[rgba(100,183,159,0.08)] text-[rgb(34,102,87)]"
-                          : "border-slate-200 bg-white text-slate-500",
-                    )}
-                  >
-                    {week}
+        <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr]">
+          <div className="grid gap-4 lg:grid-rows-[auto_auto_1fr]">
+            <div className="surface-muted p-5">
+              <div className="eyebrow text-center">Avance total del plan</div>
+              <div className="relative mx-auto mt-5 h-52 w-full max-w-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={progressChart}
+                      dataKey="value"
+                      innerRadius={72}
+                      outerRadius={92}
+                      startAngle={90}
+                      endAngle={-270}
+                      stroke="none"
+                    >
+                      {progressChart.map((entry) => (
+                        <Cell key={entry.name} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="text-4xl font-semibold tracking-[-0.03em] text-slate-950">
+                    {overallProgress}%
                   </div>
-                ))}
+                  <div className="mt-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                    progreso total
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="surface-muted space-y-3 p-4">
+            <div className="surface-muted p-5">
               <div className="flex items-center justify-between">
-                <span className="eyebrow">Recomendación ejecutiva</span>
+                <span className="eyebrow">Lectura ejecutiva</span>
                 <ShieldAlert className="h-4 w-4 text-[rgb(208,154,67)]" />
               </div>
-              <p className="text-sm leading-7 text-slate-600">
+              <p className="mt-3 text-sm leading-7 text-slate-600">
                 Mantener semanas de solapamiento es la decisión que más compra tranquilidad y baja
                 costo oculto de improvisación.
               </p>
+            </div>
+          </div>
+
+          <div className="surface-muted p-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <div className="eyebrow">Resumen compacto</div>
+                <h2 className="mt-3 text-2xl font-semibold text-slate-950">
+                  Comando visual del proyecto
+                </h2>
+              </div>
+              <div className="rounded-full border border-slate-200/80 bg-white/75 px-4 py-2 text-sm font-semibold text-slate-600">
+                Ventana objetivo · abril a junio
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-3 md:grid-cols-3">
+              {visualWindowGroups.map((window) => (
+                <WindowSummaryCard key={window.month} {...window} />
+              ))}
+            </div>
+
+            <div className="mt-5 rounded-[26px] border border-slate-200/80 bg-white/80 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                    Lectura por tramo
+                  </div>
+                  <div className="mt-2 text-sm font-semibold text-slate-900">
+                    Abril abre la decisión, mayo absorbe complejidad y junio ejecuta el cierre.
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {calendarMonths.map((month) => (
+                    <span
+                      key={month.label}
+                      className="rounded-full border border-slate-200 bg-[#faf8f4] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500"
+                    >
+                      {month.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -614,6 +693,123 @@ function SummaryStat({
       <span className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{title}</span>
       <div className="mt-6 text-4xl font-semibold tracking-[-0.04em] text-slate-950">{value}</div>
       <span className="mt-2 text-sm text-slate-500">{detail}</span>
+    </div>
+  );
+}
+
+function ExecutiveSignal({
+  icon: Icon,
+  tone,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  tone: "blue" | "mint" | "amber";
+  label: string;
+  value: string;
+}) {
+  const tones = {
+    blue: "bg-[rgba(91,124,250,0.12)] text-[rgb(58,78,167)]",
+    mint: "bg-[rgba(100,183,159,0.12)] text-[rgb(34,102,87)]",
+    amber: "bg-[rgba(208,154,67,0.12)] text-[rgb(130,84,17)]",
+  };
+
+  return (
+    <div className="rounded-[24px] border border-white/70 bg-white/70 p-4 shadow-sm">
+      <div className="flex items-start gap-3">
+        <span className={cn("inline-flex h-9 w-9 items-center justify-center rounded-2xl", tones[tone])}>
+          <Icon className="h-4 w-4" />
+        </span>
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            {label}
+          </div>
+          <div className="mt-1 text-sm font-semibold leading-6 text-slate-800">{value}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SignalCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "blue" | "mint" | "amber";
+}) {
+  const toneClasses = {
+    blue: "border-[rgba(91,124,250,0.14)] bg-[rgba(91,124,250,0.07)]",
+    mint: "border-[rgba(100,183,159,0.14)] bg-[rgba(100,183,159,0.07)]",
+    amber: "border-[rgba(208,154,67,0.14)] bg-[rgba(208,154,67,0.08)]",
+  };
+
+  return (
+    <div className={cn("rounded-[24px] border p-4", toneClasses[tone])}>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">{label}</div>
+      <div className="mt-2 text-sm font-semibold leading-6 text-slate-800">{value}</div>
+    </div>
+  );
+}
+
+function WindowSummaryCard({
+  month,
+  range,
+  summary,
+  weeks,
+  tone,
+}: {
+  month: string;
+  range: string;
+  summary: string;
+  weeks: string[];
+  tone: "blue" | "mint" | "graphite";
+}) {
+  const shellTone =
+    tone === "blue"
+      ? "border-[rgba(91,124,250,0.14)] bg-[rgba(91,124,250,0.07)]"
+      : tone === "mint"
+        ? "border-[rgba(100,183,159,0.14)] bg-[rgba(100,183,159,0.07)]"
+        : "border-slate-900/10 bg-slate-950 text-white";
+
+  const pillTone =
+    tone === "blue"
+      ? "border-[rgba(91,124,250,0.16)] bg-white/80 text-[rgb(58,78,167)]"
+      : tone === "mint"
+        ? "border-[rgba(100,183,159,0.16)] bg-white/80 text-[rgb(34,102,87)]"
+        : "border-white/10 bg-white/10 text-white/78";
+
+  return (
+    <div className={cn("rounded-[26px] border p-4", shellTone)}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className={cn("text-[11px] font-semibold uppercase tracking-[0.2em]", tone === "graphite" ? "text-white/45" : "text-slate-400")}>
+            {month}
+          </div>
+          <div className={cn("mt-2 text-base font-semibold", tone === "graphite" ? "text-white" : "text-slate-900")}>
+            {summary}
+          </div>
+        </div>
+        <span className={cn("rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]", pillTone)}>
+          {range}
+        </span>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {weeks.map((week) => (
+          <span
+            key={week}
+            className={cn(
+              "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]",
+              pillTone,
+            )}
+          >
+            {week}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -904,102 +1100,184 @@ function RoadmapSection({ detailed }: { detailed: boolean }) {
           }
         />
 
-        <div className="mt-8 overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/[0.68]">
-          <div className="grid grid-cols-[220px_minmax(720px,1fr)]">
-            <div className="border-r border-slate-200/80 bg-[#faf8f4]/90 p-4">
-              <div className="eyebrow">{detailed ? "Fases" : "Bloques"}</div>
-            </div>
-            <div className="overflow-x-auto">
-              <div className="min-w-[760px]">
-                <div className="grid grid-cols-9 border-b border-slate-200/80 bg-[#faf8f4]/90">
-                  {calendarMonths.map((month) => (
-                    <div
-                      key={month.label}
-                      className="border-r border-slate-200/80 px-4 py-4 text-sm font-semibold text-slate-700 last:border-r-0"
-                      style={{ gridColumn: `span ${month.span}` }}
-                    >
-                      {month.label}
-                    </div>
-                  ))}
+        <div className="mt-8 grid gap-4">
+          <div className="grid gap-3 md:grid-cols-3">
+            {calendarMonths.map((month) => (
+              <div key={month.label} className="rounded-[24px] border border-slate-200/80 bg-[#fbfaf7]/80 p-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Mes
                 </div>
-                <div className="grid grid-cols-9 bg-white/80">
-                  {calendarWeeks.map((week) => (
-                    <div
-                      key={week}
-                      className="border-r border-slate-200/60 px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 last:border-r-0"
-                    >
-                      {week}
-                    </div>
-                  ))}
+                <div className="mt-2 text-lg font-semibold text-slate-900">{month.label}</div>
+                <div className="mt-1 text-sm text-slate-500">
+                  {month.span} bloque{month.span > 1 ? "s" : ""} de semana
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-3 xl:hidden">
+            {rows.map((row, rowIndex) => (
+              <RoadmapMobileCard key={row.id} row={row} detailed={detailed} index={rowIndex} />
+            ))}
+          </div>
+
+          <div className="hidden overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/[0.68] xl:block">
+            <div className="grid grid-cols-[250px_minmax(820px,1fr)]">
+              <div className="border-r border-slate-200/80 bg-[#faf8f4]/90 p-4">
+                <div className="eyebrow">{detailed ? "Fases" : "Bloques"}</div>
+              </div>
+              <div className="overflow-x-auto">
+                <div className="min-w-[860px]">
+                  <div className="grid grid-cols-9 border-b border-slate-200/80 bg-[#faf8f4]/90">
+                    {calendarMonths.map((month) => (
+                      <div
+                        key={month.label}
+                        className="border-r border-slate-200/80 px-4 py-4 text-sm font-semibold text-slate-700 last:border-r-0"
+                        style={{ gridColumn: `span ${month.span}` }}
+                      >
+                        {month.label}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-9 bg-white/80">
+                    {calendarWeeks.map((week) => (
+                      <div
+                        key={week}
+                        className="border-r border-slate-200/60 px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 last:border-r-0"
+                      >
+                        {week}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-[220px_minmax(720px,1fr)]">
-            <div className="border-r border-slate-200/80 bg-[#faf8f4]/90">
-              {rows.map((row) => (
-                <div
-                  key={row.id}
-                  className="border-b border-slate-200/70 px-4 py-4 last:border-b-0"
-                >
-                  <div className="text-sm font-semibold text-slate-900">
-                    {"shortTitle" in row ? row.title : row.label}
-                  </div>
-                  <div className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
-                    {"calendarLabel" in row ? row.calendarLabel : row.note}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="overflow-x-auto">
-              <div className="min-w-[760px]">
-                {rows.map((row, rowIndex) => (
-                  <div
-                    key={row.id}
-                    className="grid h-[78px] grid-cols-9 border-b border-slate-200/70 bg-white/80 last:border-b-0"
-                  >
-                    {calendarWeeks.map((week) => (
-                      <div key={`${row.id}-${week}`} className="border-r border-slate-200/60 last:border-r-0" />
-                    ))}
-
-                    <div
-                      className="pointer-events-none col-span-9 row-start-1 row-end-2 -mt-[58px] px-3"
-                      style={{ display: "grid", gridTemplateColumns: "repeat(9, minmax(0, 1fr))" }}
-                    >
-                      <motion.div
-                        initial={{ opacity: 0, scaleX: 0.92 }}
-                        whileInView={{ opacity: 1, scaleX: 1 }}
-                        viewport={{ once: true, amount: 0.5 }}
-                        transition={{ duration: 0.35, delay: rowIndex * 0.04 }}
-                        className={cn(
-                          "pointer-events-auto flex h-[42px] items-center justify-between rounded-2xl px-4 text-sm font-semibold text-white shadow-md",
-                          getRoadmapTone("tone" in row ? row.tone : row.status),
-                        )}
-                        style={{
-                          gridColumn: `${row.startWeek + 1} / span ${row.endWeek - row.startWeek + 1}`,
-                          alignSelf: "center",
-                        }}
-                      >
-                        <span className="truncate">
-                          {"shortTitle" in row ? `F${row.number} · ${row.shortTitle}` : row.label}
-                        </span>
-                        {detailed && "bufferLabel" in row ? (
-                          <span className="hidden rounded-full bg-white/[0.18] px-2 py-1 text-[10px] uppercase tracking-[0.18em] lg:inline-flex">
-                            Colchón
-                          </span>
-                        ) : null}
-                      </motion.div>
+            <div className="grid grid-cols-[250px_minmax(820px,1fr)]">
+              <div className="border-r border-slate-200/80 bg-[#faf8f4]/90">
+                {rows.map((row) => (
+                  <div key={row.id} className="border-b border-slate-200/70 px-4 py-4 last:border-b-0">
+                    <div className="text-sm font-semibold text-slate-900">
+                      {"shortTitle" in row ? row.title : row.label}
+                    </div>
+                    <div className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
+                      {"calendarLabel" in row ? row.calendarLabel : row.note}
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <div className="overflow-x-auto">
+                <div className="min-w-[860px]">
+                  {rows.map((row, rowIndex) => (
+                    <div
+                      key={row.id}
+                      className="relative grid h-[92px] grid-cols-9 border-b border-slate-200/70 bg-white/80 last:border-b-0"
+                    >
+                      {calendarWeeks.map((week) => (
+                        <div key={`${row.id}-${week}`} className="border-r border-slate-200/60 last:border-r-0" />
+                      ))}
+
+                      <div
+                        className="absolute inset-x-0 top-1/2 grid -translate-y-1/2 px-4"
+                        style={{ gridTemplateColumns: "repeat(9, minmax(0, 1fr))" }}
+                      >
+                        <motion.div
+                          initial={{ opacity: 0, scaleX: 0.94 }}
+                          whileInView={{ opacity: 1, scaleX: 1 }}
+                          viewport={{ once: true, amount: 0.5 }}
+                          transition={{ duration: 0.35, delay: rowIndex * 0.04 }}
+                          className={cn(
+                            "flex h-[52px] items-center justify-between rounded-[18px] px-4 text-sm font-semibold text-white shadow-md",
+                            getRoadmapTone("tone" in row ? row.tone : row.status),
+                          )}
+                          style={{
+                            gridColumn: `${row.startWeek + 1} / span ${row.endWeek - row.startWeek + 1}`,
+                          }}
+                        >
+                          <div className="min-w-0">
+                            <span className="truncate">
+                              {"shortTitle" in row ? `F${row.number} · ${row.shortTitle}` : row.label}
+                            </span>
+                            <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/70">
+                              {"durationLabel" in row ? row.durationLabel : row.note}
+                            </div>
+                          </div>
+                          {detailed && "bufferLabel" in row ? (
+                            <span className="ml-3 hidden rounded-full bg-white/[0.18] px-2 py-1 text-[10px] uppercase tracking-[0.18em] 2xl:inline-flex">
+                              Colchón
+                            </span>
+                          ) : null}
+                        </motion.div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </Card>
     </AnimatedSection>
+  );
+}
+
+function RoadmapMobileCard({
+  row,
+  detailed,
+  index,
+}: {
+  row: Phase | RoadmapBlock;
+  detailed: boolean;
+  index: number;
+}) {
+  const label = "shortTitle" in row ? row.title : row.label;
+  const meta = "calendarLabel" in row ? row.calendarLabel : row.note;
+  const duration = "durationLabel" in row ? row.durationLabel : row.note;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{ duration: 0.28, delay: index * 0.04 }}
+      className="rounded-[26px] border border-slate-200/80 bg-white/78 p-4 shadow-sm"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold text-slate-900">{label}</div>
+          <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-slate-400">{meta}</div>
+        </div>
+        <Badge>{duration}</Badge>
+      </div>
+
+      <div className="mt-4 grid grid-cols-9 gap-1">
+        {calendarWeeks.map((week, weekIndex) => {
+          const active = weekIndex >= row.startWeek && weekIndex <= row.endWeek;
+          return (
+            <div key={`${row.id}-${week}`} className="space-y-1">
+              <div
+                className={cn(
+                  "h-2 rounded-full",
+                  active
+                    ? getRoadmapTone("tone" in row ? row.tone : row.status)
+                    : "bg-slate-100",
+                )}
+              />
+              <div className="text-center text-[9px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+                {week.replace(" ", "")}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {detailed && "bufferLabel" in row ? (
+        <div className="mt-4 rounded-[20px] border border-slate-200/80 bg-[#faf8f4] px-4 py-3 text-sm text-slate-600">
+          {row.bufferLabel}
+        </div>
+      ) : null}
+    </motion.div>
   );
 }
 
@@ -1013,32 +1291,66 @@ function FlowSection() {
           description="Diagrama limpio para presentar la secuencia operativa sin abrir aún el detalle táctico."
         />
 
-        <div className="mt-10 flex flex-col items-center">
-          {visualFlow.map((item, index) => (
-            <div key={item} className="flex w-full max-w-xl flex-col items-center">
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.45 }}
-                transition={{ duration: 0.25, delay: index * 0.05 }}
-                className="surface-muted flex w-full items-center justify-between gap-4 px-5 py-4"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600">
-                    {index + 1}
-                  </span>
-                  <span className="text-lg font-semibold text-slate-900">{item}</span>
-                </div>
-                <ArrowRight className="h-4 w-4 text-slate-300" />
-              </motion.div>
-
-              {index < visualFlow.length - 1 ? (
-                <div className="flex h-8 items-center justify-center">
-                  <div className="h-8 w-px bg-gradient-to-b from-slate-200 via-slate-300 to-transparent" />
-                </div>
-              ) : null}
+        <div className="mt-10">
+          <div className="hidden xl:block">
+            <div className="relative grid grid-cols-7 gap-3">
+              <div className="pointer-events-none absolute left-[7%] right-[7%] top-[2.35rem] h-px bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200" />
+              {visualFlow.map((item, index) => (
+                <motion.div
+                  key={item}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.45 }}
+                  transition={{ duration: 0.25, delay: index * 0.05 }}
+                  className="relative"
+                >
+                  <div className="surface-muted flex h-full min-h-[160px] flex-col justify-between px-5 py-5">
+                    <div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <div className="text-lg font-semibold text-slate-900">{item}</div>
+                      <div className="mt-2 text-sm leading-6 text-slate-500">
+                        {index === 0
+                          ? "Abre la decisión y fija el rumbo."
+                          : index === visualFlow.length - 1
+                            ? "Ordena la salida y recupera el depósito."
+                            : "Activa el siguiente bloque sin perder continuidad."}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <div className="flex flex-col items-center xl:hidden">
+            {visualFlow.map((item, index) => (
+              <div key={item} className="flex w-full max-w-xl flex-col items-center">
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.45 }}
+                  transition={{ duration: 0.25, delay: index * 0.05 }}
+                  className="surface-muted flex w-full items-center justify-between gap-4 px-5 py-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600">
+                      {index + 1}
+                    </span>
+                    <span className="text-lg font-semibold text-slate-900">{item}</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-slate-300" />
+                </motion.div>
+
+                {index < visualFlow.length - 1 ? (
+                  <div className="flex h-8 items-center justify-center">
+                    <div className="h-8 w-px bg-gradient-to-b from-slate-200 via-slate-300 to-transparent" />
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
         </div>
       </Card>
     </AnimatedSection>
