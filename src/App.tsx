@@ -651,10 +651,37 @@ function HeroOverview({
                     Vista compacta
                   </div>
                   <div className="mt-2 text-lg font-semibold leading-7 text-slate-950">
-                    El proyecto se lee mejor como tres tramos: definición en abril, absorción operativa en mayo y ejecución final en junio.
+                    Lectura recomendada por tramo
                   </div>
                 </div>
                 <Badge variant="accent">Secuencia recomendada</Badge>
+              </div>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div className="rounded-[22px] border border-slate-200/80 bg-[#faf8f4] p-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                    Abril
+                  </div>
+                  <div className="mt-2 text-sm font-semibold leading-6 text-slate-900">
+                    Definición y cierre contractual
+                  </div>
+                </div>
+                <div className="rounded-[22px] border border-slate-200/80 bg-[#faf8f4] p-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                    Mayo
+                  </div>
+                  <div className="mt-2 text-sm font-semibold leading-6 text-slate-900">
+                    Absorción operativa y preparación
+                  </div>
+                </div>
+                <div className="rounded-[22px] border border-slate-200/80 bg-[#faf8f4] p-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                    Junio
+                  </div>
+                  <div className="mt-2 text-sm font-semibold leading-6 text-slate-900">
+                    Ejecución final y cierre
+                  </div>
+                </div>
               </div>
 
               <div className="mt-5 grid gap-3 xl:grid-cols-3">
