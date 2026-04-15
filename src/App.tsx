@@ -276,7 +276,7 @@ function App() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-gradient-to-b from-white/50 via-white/10 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-full bg-soft-grid opacity-[0.12]" />
 
-      <main className="relative mx-auto flex w-full max-w-[1480px] flex-col gap-6 px-4 pb-16 pt-5 sm:px-6 lg:px-8 lg:pt-8">
+      <main className="relative mx-auto flex w-full max-w-[1480px] flex-col gap-5 px-3 pb-16 pt-4 sm:gap-6 sm:px-5 sm:pt-5 lg:px-8 lg:pt-8">
         <HeroOverview statusCounts={statusCounts} />
 
         <Tabs
@@ -284,10 +284,10 @@ function App() {
           onValueChange={(value) => setViewMode(value as ViewMode)}
           className="flex flex-col gap-0"
         >
-          <div className="sticky top-4 z-40">
-            <Card className="overflow-hidden border-white/80 bg-white/[0.76] p-3 shadow-float backdrop-blur-2xl">
-              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                <nav className="flex gap-2 overflow-x-auto pb-1">
+          <div className="sticky top-2 z-40 sm:top-4">
+            <Card className="overflow-hidden border-white/80 bg-white/[0.82] p-2.5 shadow-float backdrop-blur-2xl sm:p-3">
+              <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-center 2xl:justify-between">
+                <nav className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
                   <button
                     type="button"
                     onClick={() => setContentTab("all")}
@@ -317,13 +317,13 @@ function App() {
                   ))}
                 </nav>
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <TabsList className="w-full sm:w-auto">
+                <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
+                  <TabsList className="grid w-full grid-cols-2 sm:w-auto">
                     <TabsTrigger value="executive">Vista ejecutiva</TabsTrigger>
                     <TabsTrigger value="pm">Vista PM detallada</TabsTrigger>
                   </TabsList>
 
-                  <div className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 p-1 shadow-sm">
+                  <div className="grid w-full grid-cols-2 gap-2 rounded-[24px] border border-slate-200/80 bg-white/70 p-1 shadow-sm sm:w-auto sm:grid-cols-2 sm:rounded-full">
                     <button
                       className={cn(
                         "rounded-full px-3 py-2 text-sm font-semibold transition-all",
@@ -356,7 +356,7 @@ function App() {
 
           {shouldShowSection("resumen") ? (
           <div id="resumen" className="scroll-mt-28">
-            <AnimatedSection className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            <AnimatedSection className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {kpiMetrics.map((metric) => (
                 <MetricCard key={metric.id} metric={metric} />
               ))}
@@ -526,7 +526,7 @@ function HeroOverview({
         <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-br from-[rgba(91,124,250,0.14)] via-transparent to-transparent" />
         <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-[rgba(100,183,159,0.10)] blur-3xl" />
         <div className="relative flex flex-col gap-8">
-          <div className="grid gap-6 lg:grid-cols-[1.18fr_0.82fr]">
+          <div className="grid gap-6 xl:grid-cols-[1.18fr_0.82fr]">
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge variant="subtle">Centro de comando</Badge>
@@ -541,7 +541,7 @@ function HeroOverview({
                 ejecutar la mudanza con margen real.
               </p>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="mt-8 grid gap-3 md:grid-cols-3">
                 {overviewHighlights.map((item) => (
                   <div key={item.label} className="rounded-[26px] border border-white/70 bg-white/72 p-4 shadow-sm">
                     <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
@@ -610,7 +610,7 @@ function HeroOverview({
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+            <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-1">
               <SummaryStat title="En curso" value={`${statusCounts.inProgress}`} detail="fase activa hoy" />
               <SummaryStat title="Lista para activar" value={`${statusCounts.ready}`} detail="con decisión cerrada" />
               <SummaryStat
@@ -625,7 +625,7 @@ function HeroOverview({
 
       <Card className="section-shell">
         <div className="grid gap-6">
-          <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
+          <div className="grid gap-4 xl:grid-cols-[0.88fr_1.12fr]">
             <div className="surface-muted p-5">
               <div className="eyebrow text-center">Avance total del plan</div>
               <div className="relative mx-auto mt-5 h-52 w-full max-w-[220px]">
@@ -770,7 +770,7 @@ function SummaryStat({
   return (
     <div className="surface-muted flex flex-col justify-between p-4">
       <span className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{title}</span>
-      <div className="mt-6 text-4xl font-semibold tracking-[-0.04em] text-slate-950">{value}</div>
+      <div className="mt-5 text-3xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-4xl">{value}</div>
       <span className="mt-2 text-sm text-slate-500">{detail}</span>
     </div>
   );
@@ -791,7 +791,7 @@ function CompactOverviewPanel() {
           </p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
           <MetaBlock label="Secuencia" value="Firma → acceso → pintura → mudanza" />
           <MetaBlock label="Riesgo principal" value="Avisar salida antes de bloquear entrada" />
           <MetaBlock label="Ventana clave" value="Mayo semanas 2–4" />
@@ -981,7 +981,7 @@ function TimelineSection({
           }
         />
 
-        <div className="mt-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div className="mt-6 flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div className="flex flex-wrap gap-2">
             {phaseFilterOptions.map((option) => (
               <button
@@ -1031,7 +1031,7 @@ function TimelineSection({
 function CompactTimelineView({ phases }: { phases: Phase[] }) {
   return (
     <div className="mt-8 grid gap-4">
-      <div className="grid gap-3 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetaBlock label="Fases visibles" value={`${phases.length} bloques`} />
         <MetaBlock label="Inicio" value={phases[0]?.weekLabel ?? "Definir"} />
         <MetaBlock label="Cierre" value={phases[phases.length - 1]?.weekLabel ?? "Cierre"} />
@@ -1041,7 +1041,7 @@ function CompactTimelineView({ phases }: { phases: Phase[] }) {
       <div className="grid gap-3">
         {phases.map((phase) => (
           <div key={phase.id} className="surface-muted p-4">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] border border-white/80 bg-white text-lg shadow-sm">
                   {phase.emoji}
@@ -1057,7 +1057,7 @@ function CompactTimelineView({ phases }: { phases: Phase[] }) {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
+              <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[420px] xl:grid-cols-3">
                 <MetaBlock label="Calendario" value={phase.calendarLabel} />
                 <MetaBlock label="Duración" value={phase.durationLabel} />
                 <MetaBlock label="Riesgo" value={riskMeta[phase.risk]} />
@@ -1098,12 +1098,12 @@ function TimelinePhaseCard({
     >
       <button type="button" onClick={onToggle} className="w-full text-left">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-          <div className="flex gap-4">
+          <div className="flex min-w-0 gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] border border-white/80 bg-white text-xl shadow-sm">
               <span>{phase.emoji}</span>
             </div>
 
-            <div className="space-y-3">
+            <div className="min-w-0 space-y-3">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge>{`Fase ${phase.number}`}</Badge>
                 <StatusPill status={phase.status} />
@@ -1126,7 +1126,7 @@ function TimelinePhaseCard({
           </div>
 
           <div className="flex items-center gap-3 self-start">
-            <div className="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 sm:inline-flex">
+            <div className="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 xl:inline-flex">
               {phase.calendarLabel}
             </div>
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500">
@@ -1149,7 +1149,7 @@ function TimelinePhaseCard({
             ))}
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
             <MetaBlock label="Duración" value={phase.durationLabel} />
             <MetaBlock label="Riesgo" value={riskMeta[phase.risk]} />
             <MetaBlock label="Dependencias" value={dependencyLabel} />
@@ -1171,7 +1171,7 @@ function TimelinePhaseCard({
             <div
               className={cn(
                 "mt-5 grid gap-4",
-                detailed || density === "detailed" ? "xl:grid-cols-[1.25fr_0.95fr]" : "lg:grid-cols-2",
+                detailed || density === "detailed" ? "2xl:grid-cols-[1.25fr_0.95fr]" : "xl:grid-cols-2",
               )}
             >
               <div className="space-y-4">
@@ -1255,7 +1255,7 @@ function RoadmapSection({ detailed }: { detailed: boolean }) {
         />
 
         <div className="mt-8 grid gap-4">
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 lg:grid-cols-3">
             {calendarMonths.map((month) => (
               <div key={month.label} className="rounded-[24px] border border-slate-200/80 bg-[#fbfaf7]/80 p-4">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -1276,7 +1276,7 @@ function RoadmapSection({ detailed }: { detailed: boolean }) {
           </div>
 
           <div className="hidden overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/[0.68] xl:block">
-            <div className="grid grid-cols-[250px_minmax(820px,1fr)]">
+            <div className="grid grid-cols-[220px_minmax(820px,1fr)] 2xl:grid-cols-[250px_minmax(820px,1fr)]">
               <div className="border-r border-slate-200/80 bg-[#faf8f4]/90 p-4">
                 <div className="eyebrow">{detailed ? "Fases" : "Bloques"}</div>
               </div>
@@ -1307,7 +1307,7 @@ function RoadmapSection({ detailed }: { detailed: boolean }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-[250px_minmax(820px,1fr)]">
+            <div className="grid grid-cols-[220px_minmax(820px,1fr)] 2xl:grid-cols-[250px_minmax(820px,1fr)]">
               <div className="border-r border-slate-200/80 bg-[#faf8f4]/90">
                 {rows.map((row) => (
                   <div key={row.id} className="border-b border-slate-200/70 px-4 py-4 last:border-b-0">
@@ -1397,12 +1397,14 @@ function RoadmapMobileCard({
       transition={{ duration: 0.28, delay: index * 0.04 }}
       className="rounded-[26px] border border-slate-200/80 bg-white/78 p-4 shadow-sm"
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="text-sm font-semibold text-slate-900">{label}</div>
           <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-slate-400">{meta}</div>
         </div>
-        <Badge>{duration}</Badge>
+        <div className="self-start">
+          <Badge>{duration}</Badge>
+        </div>
       </div>
 
       <div className="mt-4 grid grid-cols-9 gap-1">
@@ -1446,7 +1448,7 @@ function FlowSection() {
         />
 
         <div className="mt-10">
-          <div className="hidden xl:block">
+          <div className="hidden 2xl:block">
             <div className="relative grid grid-cols-7 gap-3">
               <div className="pointer-events-none absolute left-[7%] right-[7%] top-[2.35rem] h-px bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200" />
               {visualFlow.map((item, index) => (
@@ -1478,7 +1480,7 @@ function FlowSection() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center xl:hidden">
+          <div className="flex flex-col items-center 2xl:hidden">
             {visualFlow.map((item, index) => (
               <div key={item} className="flex w-full max-w-xl flex-col items-center">
                 <motion.div
