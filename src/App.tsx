@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
@@ -82,15 +82,6 @@ const iconMap: Record<IconKey, LucideIcon> = {
   move: Truck,
   receipt: ReceiptText,
 };
-
-const sectionLinks = [
-  { id: "resumen", label: "Resumen" },
-  { id: "timeline", label: "Timeline" },
-  { id: "roadmap", label: "Roadmap" },
-  { id: "flujo", label: "Flujo" },
-  { id: "critico", label: "Ruta crítica" },
-  { id: "recomendaciones", label: "Recomendación" },
-];
 
 const phaseFilterOptions: Array<{ value: PhaseFilter; label: string }> = [
   { value: "all", label: "Todo" },
@@ -210,6 +201,40 @@ function App() {
     "fase-7": true,
   });
 
+  const filteredPhases = movePhases.filter((phase) => {
+    if (phaseFilter === "next") return phase.startWeek <= 5;
+    if (phaseFilter === "critical") {
+      return phase.status === "critical" || phase.risk === "high" || phase.status === "blocked";
+    }
+    if (phaseFilter === "ready") {
+      return phase.status === "ready" || phase.status === "in_progress";
+    }
+    return true;
+  });
+
+  const statusCounts = {
+    inProgress: movePhases.filter((phase) => phase.status === "in_progress").length,
+    ready: movePhases.filter((phase) => phase.status === "ready").length,
+    critical: criticalDependencies.length,
+  };
+
+  const isCompact = density === "compact";
+  const isDetailed = density === "detailed";
+  const isExecutive = viewMode === "executive";
+
+  const visibleSections = useMemo(
+    () =>
+      [
+        { id: "resumen", label: "Resumen", visible: true },
+        { id: "timeline", label: "Timeline", visible: true },
+        { id: "roadmap", label: "Roadmap", visible: !isExecutive || isDetailed },
+        { id: "flujo", label: "Flujo", visible: !isExecutive && isDetailed },
+        { id: "critico", label: "Ruta crítica", visible: !isExecutive && isDetailed },
+        { id: "recomendaciones", label: "Recomendación", visible: isExecutive || isDetailed },
+      ].filter((section) => section.visible),
+    [isDetailed, isExecutive],
+  );
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -227,7 +252,7 @@ function App() {
       },
     );
 
-    sectionLinks.forEach((section) => {
+    visibleSections.forEach((section) => {
       const element = document.getElementById(section.id);
       if (element) {
         observer.observe(element);
@@ -235,24 +260,7 @@ function App() {
     });
 
     return () => observer.disconnect();
-  }, []);
-
-  const filteredPhases = movePhases.filter((phase) => {
-    if (phaseFilter === "next") return phase.startWeek <= 5;
-    if (phaseFilter === "critical") {
-      return phase.status === "critical" || phase.risk === "high" || phase.status === "blocked";
-    }
-    if (phaseFilter === "ready") {
-      return phase.status === "ready" || phase.status === "in_progress";
-    }
-    return true;
-  });
-
-  const statusCounts = {
-    inProgress: movePhases.filter((phase) => phase.status === "in_progress").length,
-    ready: movePhases.filter((phase) => phase.status === "ready").length,
-    critical: criticalDependencies.length,
-  };
+  }, [visibleSections]);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden text-slate-900">
@@ -271,7 +279,7 @@ function App() {
             <Card className="overflow-hidden border-white/80 bg-white/[0.76] p-3 shadow-float backdrop-blur-2xl">
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                 <nav className="flex gap-2 overflow-x-auto pb-1">
-                  {sectionLinks.map((link) => (
+                  {visibleSections.map((link) => (
                     <a
                       key={link.id}
                       href={`#${link.id}`}
@@ -304,7 +312,7 @@ function App() {
                       onClick={() => setDensity("compact")}
                       type="button"
                     >
-                      Compacto
+                      Visión resumida
                     </button>
                     <button
                       className={cn(
@@ -316,7 +324,7 @@ function App() {
                       onClick={() => setDensity("detailed")}
                       type="button"
                     >
-                      Detallado
+                      Visión avanzada
                     </button>
                   </div>
                 </div>
@@ -331,93 +339,99 @@ function App() {
               ))}
             </AnimatedSection>
 
-            <AnimatedSection className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-              <Card className="section-shell">
-                <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-                  <div className="max-w-2xl">
-                    <div className="eyebrow">Pulso operativo</div>
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <h2 className="text-2xl font-semibold text-slate-950 sm:text-3xl">
-                        Señales clave para tomar decisiones rápido
-                      </h2>
-                      <Badge variant="accent">Desde hoy · {todayLabel}</Badge>
+            {isDetailed ? (
+              <AnimatedSection className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                <Card className="section-shell">
+                  <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+                    <div className="max-w-2xl">
+                      <div className="eyebrow">Pulso operativo</div>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <h2 className="text-2xl font-semibold text-slate-950 sm:text-3xl">
+                          Señales clave para tomar decisiones rápido
+                        </h2>
+                        <Badge variant="accent">Desde hoy · {todayLabel}</Badge>
+                      </div>
+                      <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
+                        La mejor jugada es mantener el control sobre contratos, acceso, pintura y
+                        logística como una sola secuencia. El costo fuerte está al principio; el
+                        riesgo fuerte, justo antes del día de mudanza.
+                      </p>
                     </div>
-                    <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-                      La mejor jugada es mantener el control sobre contratos, acceso, pintura y
-                      logística como una sola secuencia. El costo fuerte está al principio; el
-                      riesgo fuerte, justo antes del día de mudanza.
-                    </p>
-                  </div>
 
-                  <div className="surface-muted grid min-w-[260px] gap-3 p-4">
-                    <div className="flex items-center justify-between text-sm font-semibold text-slate-500">
-                      <span>Rango de costo</span>
-                      <span className="font-mono text-xs uppercase tracking-[0.2em] text-slate-400">
-                        estimado
-                      </span>
-                    </div>
-                    <div className="relative h-3 overflow-hidden rounded-full bg-slate-100">
-                      <div className="absolute inset-y-0 left-[18%] right-[14%] rounded-full bg-gradient-to-r from-[rgba(91,124,250,0.28)] via-[rgba(91,124,250,0.52)] to-[rgba(100,183,159,0.48)]" />
-                    </div>
-                    <div className="flex items-center justify-between text-sm font-semibold text-slate-700">
-                      <span>$4.6M</span>
-                      <span className="text-slate-500">centro ejecutivo · $5.3M</span>
-                      <span>$6.0M</span>
+                    <div className="surface-muted grid min-w-[260px] gap-3 p-4">
+                      <div className="flex items-center justify-between text-sm font-semibold text-slate-500">
+                        <span>Rango de costo</span>
+                        <span className="font-mono text-xs uppercase tracking-[0.2em] text-slate-400">
+                          estimado
+                        </span>
+                      </div>
+                      <div className="relative h-3 overflow-hidden rounded-full bg-slate-100">
+                        <div className="absolute inset-y-0 left-[18%] right-[14%] rounded-full bg-gradient-to-r from-[rgba(91,124,250,0.28)] via-[rgba(91,124,250,0.52)] to-[rgba(100,183,159,0.48)]" />
+                      </div>
+                      <div className="flex items-center justify-between text-sm font-semibold text-slate-700">
+                        <span>$4.6M</span>
+                        <span className="text-slate-500">centro ejecutivo · $5.3M</span>
+                        <span>$6.0M</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
 
-              <Card className="section-shell">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="eyebrow">Carga por fase</div>
-                    <h3 className="mt-3 text-xl font-semibold text-slate-950">
-                      Duración estimada por bloque
-                    </h3>
+                <Card className="section-shell">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="eyebrow">Carga por fase</div>
+                      <h3 className="mt-3 text-xl font-semibold text-slate-950">
+                        Duración estimada por bloque
+                      </h3>
+                    </div>
+                    <Badge>Promedio operativo</Badge>
                   </div>
-                  <Badge>Promedio operativo</Badge>
-                </div>
-                <div className="mt-6 h-[240px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={durationChart} margin={{ left: -20, right: 10, top: 8 }}>
-                      <XAxis
-                        dataKey="name"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }}
-                      />
-                      <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: "#94a3b8", fontSize: 12 }}
-                      />
-                      <Tooltip
-                        cursor={{ fill: "rgba(148, 163, 184, 0.06)" }}
-                        content={({ active, payload }) => {
-                          if (!active || !payload?.length) return null;
-                          const point = payload[0]?.payload as { title: string; days: number };
-                          return (
-                            <div className="rounded-2xl border border-white/80 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-xl">
-                              <div className="text-sm font-semibold text-slate-950">{point.title}</div>
-                              <div className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">
-                                {point.days} días promedio
+                  <div className="mt-6 h-[240px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={durationChart} margin={{ left: -20, right: 10, top: 8 }}>
+                        <XAxis
+                          dataKey="name"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fill: "#94a3b8", fontSize: 12 }}
+                        />
+                        <Tooltip
+                          cursor={{ fill: "rgba(148, 163, 184, 0.06)" }}
+                          content={({ active, payload }) => {
+                            if (!active || !payload?.length) return null;
+                            const point = payload[0]?.payload as { title: string; days: number };
+                            return (
+                              <div className="rounded-2xl border border-white/80 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-xl">
+                                <div className="text-sm font-semibold text-slate-950">{point.title}</div>
+                                <div className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">
+                                  {point.days} días promedio
+                                </div>
                               </div>
-                            </div>
-                          );
-                        }}
-                      />
-                      <Bar
-                        dataKey="days"
-                        radius={[12, 12, 6, 6]}
-                        fill="rgba(91, 124, 250, 0.82)"
-                        maxBarSize={46}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </Card>
-            </AnimatedSection>
+                            );
+                          }}
+                        />
+                        <Bar
+                          dataKey="days"
+                          radius={[12, 12, 6, 6]}
+                          fill="rgba(91, 124, 250, 0.82)"
+                          maxBarSize={46}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </Card>
+              </AnimatedSection>
+            ) : (
+              <AnimatedSection className="mt-4">
+                <CompactOverviewPanel />
+              </AnimatedSection>
+            )}
           </div>
 
           <TabsContent value="executive">
@@ -432,9 +446,7 @@ function App() {
               setPhaseFilter={setPhaseFilter}
               detailed={false}
             />
-            <RoadmapSection detailed={false} />
-            <FlowSection />
-            <CriticalPathSection />
+            {isDetailed ? <RoadmapSection detailed={false} /> : null}
             <RecommendationSection />
           </TabsContent>
 
@@ -451,27 +463,29 @@ function App() {
               detailed
             />
             <RoadmapSection detailed />
-            <FlowSection />
-            <CriticalPathSection />
+            {isDetailed ? <FlowSection /> : null}
+            {isDetailed ? <CriticalPathSection /> : null}
             <RecommendationSection />
           </TabsContent>
         </Tabs>
 
-        <AnimatedSection>
-          <Card className="section-shell border-dashed border-slate-300/90 bg-[#f9f7f2]/90">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="eyebrow">Siguiente nivel</div>
-                <p className="mt-2 text-lg font-semibold text-slate-900">
-                  Gantt detallado día por día desde hoy ({todayLabel}) con dependencias y buffers.
-                </p>
+        {isDetailed ? (
+          <AnimatedSection>
+            <Card className="section-shell border-dashed border-slate-300/90 bg-[#f9f7f2]/90">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="eyebrow">Siguiente nivel</div>
+                  <p className="mt-2 text-lg font-semibold text-slate-900">
+                    Gantt detallado día por día desde hoy ({todayLabel}) con dependencias y buffers.
+                  </p>
+                </div>
+                <Button variant="secondary" size="lg">
+                  Expandir a nivel diario
+                </Button>
               </div>
-              <Button variant="secondary" size="lg">
-                Expandir a nivel diario
-              </Button>
-            </div>
-          </Card>
-        </AnimatedSection>
+            </Card>
+          </AnimatedSection>
+        ) : null}
       </main>
     </div>
   );
@@ -738,6 +752,31 @@ function SummaryStat({
   );
 }
 
+function CompactOverviewPanel() {
+  return (
+    <Card className="section-shell">
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <div>
+          <div className="eyebrow">Lectura resumida</div>
+          <h2 className="mt-3 text-2xl font-semibold text-slate-950 sm:text-3xl">
+            Qué mirar primero
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+            En visión resumida priorizamos costo, secuencia y riesgos no negociables para entender
+            rápido el plan sin abrir todavía el detalle operativo.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+          <MetaBlock label="Secuencia" value="Firma → acceso → pintura → mudanza" />
+          <MetaBlock label="Riesgo principal" value="Avisar salida antes de bloquear entrada" />
+          <MetaBlock label="Ventana clave" value="Mayo semanas 2–4" />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function ExecutiveSignal({
   icon: Icon,
   tone,
@@ -911,7 +950,11 @@ function TimelineSection({
         <SectionHeader
           eyebrow="Timeline integral"
           title="Secuencia completa de la mudanza"
-          description="Cada fase se presenta como una unidad ejecutiva con flujo, tareas, duración, readiness y dependencias clave."
+          description={
+            density === "compact"
+              ? "Lectura resumida para ver la cadena completa, las ventanas de semana y el estado de cada fase sin abrir todo el detalle."
+              : "Cada fase se presenta como una unidad ejecutiva con flujo, tareas, duración, readiness y dependencias clave."
+          }
         />
 
         <div className="mt-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -940,20 +983,66 @@ function TimelineSection({
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4">
-          {phases.map((phase) => (
-            <TimelinePhaseCard
-              key={phase.id}
-              phase={phase}
-              expanded={expandedPhases[phase.id] ?? density === "detailed"}
-              onToggle={() => onTogglePhase(phase.id)}
-              detailed={detailed}
-              density={density}
-            />
-          ))}
-        </div>
+        {density === "compact" ? (
+          <CompactTimelineView phases={phases} />
+        ) : (
+          <div className="mt-8 grid gap-4">
+            {phases.map((phase) => (
+              <TimelinePhaseCard
+                key={phase.id}
+                phase={phase}
+                expanded={expandedPhases[phase.id] ?? density === "detailed"}
+                onToggle={() => onTogglePhase(phase.id)}
+                detailed={detailed}
+                density={density}
+              />
+            ))}
+          </div>
+        )}
       </Card>
     </AnimatedSection>
+  );
+}
+
+function CompactTimelineView({ phases }: { phases: Phase[] }) {
+  return (
+    <div className="mt-8 grid gap-4">
+      <div className="grid gap-3 lg:grid-cols-4">
+        <MetaBlock label="Fases visibles" value={`${phases.length} bloques`} />
+        <MetaBlock label="Inicio" value={phases[0]?.weekLabel ?? "Definir"} />
+        <MetaBlock label="Cierre" value={phases[phases.length - 1]?.weekLabel ?? "Cierre"} />
+        <MetaBlock label="Modelo" value="Secuencia resumida" />
+      </div>
+
+      <div className="grid gap-3">
+        {phases.map((phase) => (
+          <div key={phase.id} className="surface-muted p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] border border-white/80 bg-white text-lg shadow-sm">
+                  {phase.emoji}
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge>{`Fase ${phase.number}`}</Badge>
+                    <StatusPill status={phase.status} />
+                    <Badge variant="subtle">{phase.weekLabel}</Badge>
+                  </div>
+                  <h3 className="mt-3 text-xl font-semibold text-slate-950">{phase.title}</h3>
+                  <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600">{phase.summary}</p>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
+                <MetaBlock label="Calendario" value={phase.calendarLabel} />
+                <MetaBlock label="Duración" value={phase.durationLabel} />
+                <MetaBlock label="Riesgo" value={riskMeta[phase.risk]} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
