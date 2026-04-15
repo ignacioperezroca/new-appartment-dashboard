@@ -586,8 +586,8 @@ function HeroOverview({
       </Card>
 
       <Card className="section-shell">
-        <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr]">
-          <div className="grid gap-4 lg:grid-rows-[auto_auto_1fr]">
+        <div className="grid gap-6">
+          <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
             <div className="surface-muted p-5">
               <div className="eyebrow text-center">Avance total del plan</div>
               <div className="relative mx-auto mt-5 h-52 w-full max-w-[220px]">
@@ -644,33 +644,20 @@ function HeroOverview({
               </div>
             </div>
 
-            <div className="mt-6 grid gap-3 xl:grid-cols-[1.08fr_0.92fr]">
-              <div className="rounded-[26px] border border-slate-200/80 bg-white/84 p-5 shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="max-w-lg">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                      Vista compacta
-                    </div>
-                    <div className="mt-2 text-lg font-semibold leading-7 text-slate-950">
-                      El proyecto se lee mejor como tres tramos: definición en abril, absorción operativa en mayo y ejecución final en junio.
-                    </div>
+            <div className="mt-6 rounded-[26px] border border-slate-200/80 bg-white/84 p-5 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="max-w-2xl">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                    Vista compacta
                   </div>
-                  <Badge variant="accent">Secuencia recomendada</Badge>
+                  <div className="mt-2 text-lg font-semibold leading-7 text-slate-950">
+                    El proyecto se lee mejor como tres tramos: definición en abril, absorción operativa en mayo y ejecución final en junio.
+                  </div>
                 </div>
-
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {visualWindowGroups.map((window) => (
-                    <span
-                      key={`${window.month}-summary`}
-                      className="rounded-full border border-slate-200 bg-[#faf8f4] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600"
-                    >
-                      {window.month} · {window.summary}
-                    </span>
-                  ))}
-                </div>
+                <Badge variant="accent">Secuencia recomendada</Badge>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="mt-5 grid gap-3 xl:grid-cols-3">
                 {visualWindowGroups.map((window) => (
                   <WindowSummaryCard key={window.month} {...window} />
                 ))}
