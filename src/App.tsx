@@ -193,6 +193,7 @@ const commandCenterSignals = [
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("executive");
   const [density, setDensity] = useState<DensityMode>("detailed");
+  const [contentTab, setContentTab] = useState("all");
   const [phaseFilter, setPhaseFilter] = useState<PhaseFilter>("all");
   const [activeSection, setActiveSection] = useState("resumen");
   const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({
@@ -235,7 +236,15 @@ function App() {
     [isDetailed, isExecutive],
   );
 
+  const showAllSections = contentTab === "all";
+  const shouldShowSection = (sectionId: string) => showAllSections || contentTab === sectionId;
+
   useEffect(() => {
+    if (!showAllSections) {
+      setActiveSection(contentTab);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -260,7 +269,7 @@ function App() {
     });
 
     return () => observer.disconnect();
-  }, [visibleSections]);
+  }, [contentTab, showAllSections, visibleSections]);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden text-slate-900">
@@ -279,19 +288,32 @@ function App() {
             <Card className="overflow-hidden border-white/80 bg-white/[0.76] p-3 shadow-float backdrop-blur-2xl">
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                 <nav className="flex gap-2 overflow-x-auto pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setContentTab("all")}
+                    className={cn(
+                      "whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-all",
+                      showAllSections
+                        ? "bg-slate-950 text-white shadow-sm"
+                        : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-900",
+                    )}
+                  >
+                    Mostrar todo
+                  </button>
                   {visibleSections.map((link) => (
-                    <a
+                    <button
                       key={link.id}
-                      href={`#${link.id}`}
+                      type="button"
+                      onClick={() => setContentTab(link.id)}
                       className={cn(
                         "whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-all",
-                        activeSection === link.id
+                        !showAllSections && activeSection === link.id
                           ? "bg-slate-950 text-white shadow-sm"
                           : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-900",
                       )}
                     >
                       {link.label}
-                    </a>
+                    </button>
                   ))}
                 </nav>
 
@@ -332,6 +354,7 @@ function App() {
             </Card>
           </div>
 
+          {shouldShowSection("resumen") ? (
           <div id="resumen" className="scroll-mt-28">
             <AnimatedSection className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
               {kpiMetrics.map((metric) => (
@@ -433,9 +456,10 @@ function App() {
               </AnimatedSection>
             )}
           </div>
+          ) : null}
 
           <TabsContent value="executive">
-            <TimelineSection
+            {shouldShowSection("timeline") ? <TimelineSection
               phases={filteredPhases}
               density={density}
               expandedPhases={expandedPhases}
@@ -445,13 +469,13 @@ function App() {
               phaseFilter={phaseFilter}
               setPhaseFilter={setPhaseFilter}
               detailed={false}
-            />
-            {isDetailed ? <RoadmapSection detailed={false} /> : null}
-            <RecommendationSection />
+            /> : null}
+            {isDetailed && shouldShowSection("roadmap") ? <RoadmapSection detailed={false} /> : null}
+            {shouldShowSection("recomendaciones") ? <RecommendationSection /> : null}
           </TabsContent>
 
           <TabsContent value="pm">
-            <TimelineSection
+            {shouldShowSection("timeline") ? <TimelineSection
               phases={filteredPhases}
               density={density}
               expandedPhases={expandedPhases}
@@ -461,11 +485,11 @@ function App() {
               phaseFilter={phaseFilter}
               setPhaseFilter={setPhaseFilter}
               detailed
-            />
-            <RoadmapSection detailed />
-            {isDetailed ? <FlowSection /> : null}
-            {isDetailed ? <CriticalPathSection /> : null}
-            <RecommendationSection />
+            /> : null}
+            {shouldShowSection("roadmap") ? <RoadmapSection detailed /> : null}
+            {isDetailed && shouldShowSection("flujo") ? <FlowSection /> : null}
+            {isDetailed && shouldShowSection("critico") ? <CriticalPathSection /> : null}
+            {shouldShowSection("recomendaciones") ? <RecommendationSection /> : null}
           </TabsContent>
         </Tabs>
 
